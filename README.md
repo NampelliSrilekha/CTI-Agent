@@ -191,8 +191,4 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 | HTTP client | aiohttp (async parallel API calls) |
 | Frontend | Vanilla HTML/CSS/JS |
 
----
 
-## License
-
-MIT (or specify your license here)
