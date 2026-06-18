@@ -1,6 +1,6 @@
 # CTI-Agent
 
-A **conversational Threat Intelligence (CTI) analyst** for Security Operations Centers. Ask natural-language questions about IPs, domains, file hashes, threat actors, and software vulnerabilities — the agent selects the right tools, queries live intel sources, and returns structured verdicts with source attribution.
+A **Conversational Threat Intelligence (CTI) analyst** for Security Operations Centers. Ask natural-language questions about IPs, domains, file hashes, threat actors, and software vulnerabilities — the agent selects the right tools, queries live intel sources, and returns structured verdicts with source attribution.
 
 Built with **LangGraph** (ReAct agent loop), **Claude Sonnet**, and **FastAPI**, with a browser UI and a real-time tool-call trace panel.
 
@@ -10,10 +10,12 @@ Built with **LangGraph** (ReAct agent loop), **Claude Sonnet**, and **FastAPI**,
 
 - **Multi-turn investigations** — conversation memory per session; follow-ups like *"pivot from that IP"* resolve context from prior messages
 - **Six CTI tools** — IP/domain/hash lookup, threat actor profiling, CVE exposure checks, and infrastructure pivoting
-- **Live API integrations** — VirusTotal, AbuseIPDB, AlienVault OTX, NVD, and Shodan
+- **Live API integrations** — VirusTotal, AbuseIPDB, AlienVault OTX, CISA KEV/NVD, and Shodan
 - **Agent observability** — every tool call (name + inputs) is returned to the UI trace panel
 - **Prompt injection defenses** — input scanning and tool-output sanitization before data reaches the LLM
-- **Structured analyst output** — verdict-first responses (MALICIOUS / SUSPICIOUS / CLEAN / EXPOSED / UNKNOWN) with confidence levels and cited sources
+- **Structured analyst output** — verdict-first responses with confidence levels and cited sources
+- **Langfuse observability** — full distributed trace of every tool call, token usage, and cost per query visible at cloud.langfuse.com
+- **Eval/test harness** — tested against ThreatFox (abuse.ch) ground truth IOCs with 88%+ accuracy across 5 evaluation dimensions
 
 ---
 
@@ -57,8 +59,8 @@ CTI-Agent/
 │   └── injection_guard.py  # Prompt injection detection & output sanitization
 ├── ui/
 │   └── index.html          # Chat UI + agent trace panel
-├── data/
-│   └── mock_intel.py       # Sample intel data (for offline/dev reference)
+├── eval/
+│   └── run_eval.py         # Eval/test harness
 ├── requirements.txt
 └── .env                    # API keys (not committed)
 ```
@@ -73,7 +75,7 @@ CTI-Agent/
 | `lookup_domain` | Domain reputation and threat pulses | VirusTotal, AlienVault OTX |
 | `lookup_hash` | File hash malware detection | VirusTotal |
 | `get_threat_actor` | APT profile — aliases, TTPs, targets | OTX, MITRE ATT&CK (local reference) |
-| `check_exposure` | CVE lookup for a software + version | NVD |
+| `check_exposure` | CVE lookup for a software + version | NVD (CISA KEV fallback when NVD unavailable) |
 | `pivot` | Related domains/IPs from an IOC | Shodan, AlienVault OTX |
 
 ---
@@ -122,6 +124,10 @@ SHODAN_API_KEY=your_shodan_key
 | `OTX_API_KEY` | Recommended | Threat pulses, actor intel, pivots |
 | `NVD_API_KEY` | Optional | CVE / exposure checks (works without, but rate-limited) |
 | `SHODAN_API_KEY` | Optional | Open ports, hostnames, pivot data |
+| `LANGFUSE_PUBLIC_KEY` | Optional | Observability tracing via Langfuse |
+| `LANGFUSE_SECRET_KEY` | Optional | Observability tracing via Langfuse |
+| `LANGFUSE_HOST` | Optional | Langfuse host (default: https://us.cloud.langfuse.com) |
+| `THREATFOX_API_KEY` | Optional | ThreatFox IOC ground truth for eval harness |
 
 **4. Run the server**
 
